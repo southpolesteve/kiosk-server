@@ -4,5 +4,6 @@ class HomeController < ApplicationController
 
   def kiosk
     @cpu_id = params[:cpu_id]
+    render layout: 'kiosk'
   end
 end
