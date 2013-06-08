@@ -1,7 +1,9 @@
-loadiframe = (url) ->
+loadiframe = (row) ->
+  window.current = row
+  console.log("loading frame #{row}")
   iframe = document.createElement("iframe")
-  iframe.id = "frame"
-  iframe.src = url
+  iframe.id = "frame_#{row}"
+  iframe.src = config[row].url
   iframe.frameborder = "0"
   iframe.marginheight = "0"
   iframe.marginwidth = "0"
@@ -11,23 +13,30 @@ loadiframe = (url) ->
   iframe.onload = () ->
     console.log('frame_loaded')
 
-  $('#frame').remove()
+  $('body').html("")
   document.body.appendChild(iframe)
+  config[row].iframe = iframe
 
 
-
-next_url = ()->
-  if window.current == "post"
-    console.log("loading bus")
-    loadiframe('http://www.smsmybus.com/kiosk?s=1559,1750&d=East,West')
-    window.current = "bus"
+loadNextIframe = ()->
+  if window.current != _.last(window.keys)
+    loadiframe(current + 1)
   else
-    console.log("loading post")
-    loadiframe('http://www.huffingtonpost.com')
-    window.current = "post"
+    loadiframe(1)
 
-loadiframe('http://www.smsmybus.com/kiosk?s=1559,1750&d=East,West')
-window.current = "bus"
+window.config =
+  1:
+    url: 'http://www.smsmybus.com/kiosk?s=1559,1750&d=East,West'
+  2:
+    url: 'http://www.huffingtonpost.com'
+  3:
+    url: 'http://www.wunderground.com/cgi-bin/findweather/getForecast?query=53715&wuSelect=WEATHER'
+
+window.ttd = 15000
+
+window.keys = Object.keys(config).sort().map( (key)-> parseInt(key) )
+loadiframe(1)
+
 setInterval( ()->
-  next_url()
-, 10000)
+  loadNextIframe()
+, window.ttd)
