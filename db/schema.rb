@@ -11,7 +11,27 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130606031109) do
+ActiveRecord::Schema.define(:version => 20130609203218) do
+
+  create_table "kiosks", :force => true do |t|
+    t.text     "config"
+    t.string   "cpu_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.string   "state"
+  end
+
+  create_table "slides", :force => true do |t|
+    t.text     "url"
+    t.integer  "display_time"
+    t.integer  "refresh_time"
+    t.integer  "position"
+    t.integer  "kiosk_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "slides", ["kiosk_id"], :name => "index_slides_on_kiosk_id"
 
   create_table "users", :force => true do |t|
     t.string   "email",                  :default => "", :null => false

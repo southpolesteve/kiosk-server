@@ -1,9 +1,10 @@
-loadiframe = (row) ->
-  window.current = row
-  console.log("loading frame #{row}")
+loadiframe = (position) ->
+  index = position - 1
+  window.current_position = position
+  console.log("loading frame #{position}")
   iframe = document.createElement("iframe")
-  iframe.id = "frame_#{row}"
-  iframe.src = config[row].url
+  iframe.id = "frame_#{position}"
+  iframe.src = config[index].url
   iframe.frameborder = "0"
   iframe.marginheight = "0"
   iframe.marginwidth = "0"
@@ -11,32 +12,26 @@ loadiframe = (row) ->
   iframe.height = "100%"
   iframe.scrolling = "auto"
   iframe.onload = () ->
-    console.log('frame_loaded')
+    console.log("#{position} - frame loaded")
 
   $('body').html("")
   document.body.appendChild(iframe)
-  config[row].iframe = iframe
+  config[index].iframe = iframe
+  if config[index].display_time > 0
+    setTimeout( ()->
+      loadNextIframe()
+    , config[index].display_time)
+    console.log("displaying #{position} for #{config[index].display_time}")
+  else
+    console.log("displaying #{position} forever")
+
 
 
 loadNextIframe = ()->
-  if window.current != _.last(window.keys)
-    loadiframe(current + 1)
+  if window.current_position != window.config.length
+    loadiframe(current_position + 1)
   else
     loadiframe(1)
 
-window.config =
-  1:
-    url: 'http://www.smsmybus.com/kiosk?s=1559,1750&d=East,West'
-  2:
-    url: 'http://www.huffingtonpost.com'
-  3:
-    url: 'http://www.wunderground.com/cgi-bin/findweather/getForecast?query=53715&wuSelect=WEATHER'
-
-window.ttd = 15000
-
 window.keys = Object.keys(config).sort().map( (key)-> parseInt(key) )
 loadiframe(1)
-
-setInterval( ()->
-  loadNextIframe()
-, window.ttd)

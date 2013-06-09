@@ -1,6 +1,13 @@
 KioskServer::Application.routes.draw do
-  root :to => "home#index"
-  devise_for :users
+  ActiveAdmin.routes(self)
 
-  get "/:cpu_id" => "home#kiosk"
+  root :to => "home#index"
+  devise_for :users, ActiveAdmin::Devise.config
+
+  resources :kiosks, only: [:show, :update, :edit] do
+    member do
+      get :instructions
+    end
+  end
+
 end

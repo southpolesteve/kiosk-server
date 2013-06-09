@@ -14,3 +14,4 @@
 //= require jquery_ujs
 //= require underscore
 //= require bootstrap
+//= require cocoon

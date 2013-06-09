@@ -7,4 +7,8 @@
       = csrf_meta_tags
       = yield(:head)
   %body{:class => "#{controller_name} #{action_name}"}
+    :erb
+      <%= javascript_tag do %>
+        window.config = <%= @kiosk.config.to_json.html_safe %>;
+      <% end %>
     = yield :javascript

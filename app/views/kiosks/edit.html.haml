@@ -1,0 +1,6 @@
+= simple_form_for @kiosk do |f|
+  = f.simple_fields_for :slides do |slide|
+    = render 'slide_fields', :f => slide
+  .links
+    = link_to_add_association 'Add slide', f, :slides
+  = f.button :submit
