@@ -20,9 +20,9 @@ class Kiosk
     @otherFrames().hide()
     if @displayTime() > 0
       setTimeout (=> @loadNextFrame()), @displayTime()
-      debug("displaying #{@position} for #{@displayTime()}")
+      debug("Frame #{@position} - Displaying for #{@displayTime()}")
     else
-      debug("displaying #{@position} forever")
+      debug("Frame #{@position} - Displaying indefinitely")
 
   loadFrame: ()->
     iframe = $('<iframe />',
@@ -35,6 +35,8 @@ class Kiosk
       height: "100%"
       scrolling: "auto"
     )
+    iframe.load ()=>
+      debug("Frame #{@position} - Finished Loading")
     iframe.appendTo('body')
 
   currentFrame: ()->
