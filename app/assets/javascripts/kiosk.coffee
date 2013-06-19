@@ -1,37 +1,58 @@
-loadiframe = (position) ->
-  index = position - 1
-  window.current_position = position
-  console.log("loading frame #{position}")
-  iframe = document.createElement("iframe")
-  iframe.id = "frame_#{position}"
-  iframe.src = config[index].url
-  iframe.frameborder = "0"
-  iframe.marginheight = "0"
-  iframe.marginwidth = "0"
-  iframe.width = "100%"
-  iframe.height = "100%"
-  iframe.scrolling = "auto"
-  iframe.onload = () ->
-    console.log("#{position} - frame loaded")
+class Kiosk
 
-  $('body').html("")
-  document.body.appendChild(iframe)
-  config[index].iframe = iframe
-  if config[index].display_time > 0
-    setTimeout( ()->
-      loadNextIframe()
-    , config[index].display_time)
-    console.log("displaying #{position} for #{config[index].display_time}")
-  else
-    console.log("displaying #{position} forever")
+  constructor: (@config) ->
+    @loadFirstFrame()
 
+  loadFirstFrame: ()->
+    @loadPosition(1)
 
+  loadNextFrame: ()->
+    if @position != @config.length
+      @loadPosition(@position + 1)
+    else
+      @loadPosition(1)
 
-loadNextIframe = ()->
-  if window.current_position != window.config.length
-    loadiframe(current_position + 1)
-  else
-    loadiframe(1)
+  loadPosition: (position)->
+    @position = position
+    unless @currentFrame().length
+      @loadFrame()
+    @currentFrame().show()
+    @otherFrames().hide()
+    if @displayTime() > 0
+      setTimeout (=> @loadNextFrame()), @displayTime()
+      debug("displaying #{@position} for #{@displayTime()}")
+    else
+      debug("displaying #{@position} forever")
 
-window.keys = Object.keys(config).sort().map( (key)-> parseInt(key) )
-loadiframe(1)
+  loadFrame: ()->
+    iframe = $('<iframe />',
+      id: "f#{@position}"
+      src: @positionConfig().url
+      frameborder: "0"
+      marginheight: "0"
+      marginwidth: "0"
+      width: "100%"
+      height: "100%"
+      scrolling: "auto"
+    )
+    iframe.appendTo('body')
+
+  currentFrame: ()->
+    $("#f#{@position}")
+
+  otherFrames: ()->
+    $("iframe:not(#f#{@position})")
+
+  index: ()->
+    @position - 1
+
+  positionConfig: ()->
+    @config[@index()]
+
+  displayTime: ()->
+    @positionConfig().display_time
+
+  debug = (message) ->
+    console.log(message)
+
+window.kiosk = new Kiosk(window.config)
