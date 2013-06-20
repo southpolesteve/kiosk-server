@@ -1,31 +1,21 @@
 class Kiosk
 
   constructor: (@config) ->
-    @loadFirstFrame()
-
-  loadFirstFrame: ()->
     @loadPosition(1)
 
-  loadNextFrame: ()->
+  loadNextPosition: ()->
     if @position != @config.length
       @loadPosition(@position + 1)
     else
       @loadPosition(1)
 
   loadPosition: (position)->
+    @previousPosition = @position
     @position = position
-    unless @currentFrame().length
-      @loadFrame()
-    @currentFrame().show()
-    @otherFrames().hide()
-    if @displayTime() > 0
-      setTimeout (=> @loadNextFrame()), @displayTime()
-      debug("Frame #{@position} - Displaying for #{@displayTime()}")
-    else
-      debug("Frame #{@position} - Displaying indefinitely")
+    @loadFrame()
 
   loadFrame: ()->
-    iframe = $('<iframe />',
+    frame = $('<iframe />',
       id: "f#{@position}"
       src: @positionConfig().url
       frameborder: "0"
@@ -35,24 +25,38 @@ class Kiosk
       height: "100%"
       scrolling: "auto"
     )
-    iframe.load ()=>
-      debug("Frame #{@position} - Finished Loading")
-    iframe.appendTo('body')
+    frame.hide()
+    frame.appendTo('body')
+    frame.load ()=>
+      debug("Frame #{@position} - Finished Loaded")
+      @currentFrame().show()
+      debug("Frame #{@position} - Shown")
+      if @previousPosition
+        @previousFrame().hide()
+        debug("Frame #{@previousPosition} - Hidden")
+      @scheduleNextFrame()
+
+  scheduleNextFrame: ()->
+    if @displayTime() > 0
+      setTimeout (=> @loadNextPosition()), @displayTime()
+      debug("Frame #{@position} - Displaying for #{@displayTime()}")
+    else
+      debug("Frame #{@position} - Displaying indefinitely")
 
   currentFrame: ()->
     $("#f#{@position}")
 
-  otherFrames: ()->
-    $("iframe:not(#f#{@position})")
-
-  index: ()->
-    @position - 1
+  previousFrame: ()->
+    $("#f#{@previousPosition}")
 
   positionConfig: ()->
     @config[@index()]
 
   displayTime: ()->
     @positionConfig().display_time
+
+  index: ()->
+    @position - 1
 
   debug = (message) ->
     console.log(message)
